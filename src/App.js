@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import "./index.css";
+import Forecast from "./components/Forecast.js";
+import CurrentWeather from "./components/CurrentWeather.js";
+import WeatherDetails from "./components/WeatherDetails.js";
+import Search from "./components/Search.js";
 function App() {
-   const [data, setData] = useState({});
+  const [data, setData] = useState({});
+  const [forecastData, setForecastData] = useState([]);
   const [location, setLocation] = useState("Yerevan");
   const apiKey = "798a3fd81eb0fa6a59f48c79964d98a3";
   const apiUrl = `https://api.openweathermap.org/data/2.5/weather`;
-
-
+  const forecastApiUrl = `https://api.openweathermap.org/data/2.5/forecast`;
 
   const fetchData = async (location) => {
     try {
@@ -25,77 +29,62 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    fetchData(location);
-  }, []); 
-
-  const searchLocation = (event) => {
-    if (event.key === "Enter") {
-      fetchData(location);
-      setLocation("");
+  const fetchForecastData = async (location) => {
+    try {
+      const response = await axios.get(forecastApiUrl, {
+        params: {
+          q: location,
+          units: "metric",
+          appid: apiKey,
+        },
+      });
+      const filteredForecastData = filterForecast(response.data.list);
+      setForecastData(filteredForecastData);
+      console.log(filteredForecastData);
+    } catch (error) {
+      console.error("Error fetching forecast data:", error);
     }
   };
 
+  const filterForecast = (forecastList) => {
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
 
+    const filteredForecast = {};
+    forecastList.forEach((forecast) => {
+      const forecastDate = new Date(forecast.dt * 1000);
+      forecastDate.setHours(0, 0, 0, 0);
 
+      if (
+        forecastDate > currentDate &&
+        Object.keys(filteredForecast).length < 6
+      ) {
+        const date = forecastDate.getDate();
+        if (!filteredForecast[date]) {
+          filteredForecast[date] = forecast;
+        }
+      }
+    });
+
+    return Object.values(filteredForecast);
+  };
+
+  useEffect(() => {
+    fetchData(location);
+    fetchForecastData(location);
+  }, []);
 
   return (
     <div className="App">
-      <div className="search">
-        <input
-          value={location}
-          onChange={(event) => setLocation(event.target.value)}
-          onKeyPress={searchLocation}
-          placeholder="Enter Location"
-          type="text"
-        />
-      </div>
+      <Search
+        location={location}
+        setLocation={setLocation}
+        fetchData={fetchData}
+      />
       <div className="container">
-        <div className="top">
-          <div className="location">
-            <p className="city">{data.name}</p>
-
-            {data.sys && (
-              <p>
-                Sunrise:{" "}
-                {new Date(data.sys.sunrise * 1000).toLocaleTimeString()}
-              </p>
-            )}
-            {data.sys && (
-              <p>
-                Sunset: {new Date(data.sys.sunset * 1000).toLocaleTimeString()}
-              </p>
-            )}
-          </div>
-
-          <div className="temp">
-            {data.main ? (
-              <h1 className="temperature">{data.main.temp.toFixed()} °C</h1>
-            ) : null}
-          </div>
-          <div className="description">
-            {data.weather ? <p>{data.weather[0].main}</p> : null}
-          </div>
-        </div>
-
-        <div className="bottom">
-          <div className="feels">
-            {data.main ? (
-              <p className="bold">{data.main.feels_like.toFixed()} °C</p>
-            ) : null}
-            <p>Feels Like</p>
-          </div>
-          <div className="humidity">
-            {data.main ? <p className="bold">{data.main.humidity}%</p> : null}
-            <p>Humidity</p>
-          </div>
-          <div className="wind">
-            {data.wind ? (
-              <p className="bold">{data.wind.speed.toFixed()} KPH</p>
-            ) : null}
-            <p>Wind Speed</p>
-          </div>
-        </div>
+        <CurrentWeather data={data} />
+        <Forecast forecastData={forecastData} />
+        <WeatherDetails data={data} />
       </div>
     </div>
   );
