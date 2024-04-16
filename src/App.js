@@ -72,7 +72,7 @@ function App() {
   useEffect(() => {
     fetchData(location);
     fetchForecastData(location);
-  }, []);
+  }, [location]);
 
   return (
     <div className="App">
