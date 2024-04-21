@@ -6,4 +6,6 @@ export const FOREACAST_DATA_INITIAL_STATE = {
   data: [],
 };
 
-// export const LOCATION_INITIAL_STATE = "Yerevan";
+export const LOCATION_INITIAL_STATE = {
+  data: "Yerevan",
+};

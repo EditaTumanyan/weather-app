@@ -6,12 +6,12 @@ import CurrentWeather from "./components/CurrentWeather.js";
 import WeatherDetails from "./components/WeatherDetails.js";
 import Search from "./components/Search.js";
 import { useDispatch, useSelector } from "react-redux";
-import { updateWeatherData } from "./redux/reducers/weatherDataReducer.js"; 
+import { updateWeatherData } from "./redux/reducers/weatherDataReducer.js";
 import { updateForecastData } from "./redux/reducers/forecastDataReducer.js";
-
+import { selectLocation } from "./redux/selectors.js";
 
 function App() {
-  const location = useSelector(state => state.location); 
+  const location = useSelector(selectLocation);
   const dispatch = useDispatch();
   const apiKey = "798a3fd81eb0fa6a59f48c79964d98a3";
   const apiUrl = `https://api.openweathermap.org/data/2.5/weather`;
@@ -21,9 +21,10 @@ function App() {
     try {
       const response = await axios.get(apiUrl, {
         params: {
-           q: location, 
-           units: "metric",
-            appid: apiKey },
+          q: location,
+          units: "metric",
+          appid: apiKey,
+        },
       });
       dispatch(updateWeatherData(response.data));
       fetchForecastData();
@@ -51,7 +52,10 @@ function App() {
     forecastList.forEach((forecast) => {
       const forecastDate = new Date(forecast.dt * 1000);
       forecastDate.setHours(0, 0, 0, 0);
-      if (forecastDate > currentDate && Object.keys(filteredForecast).length < 6) {
+      if (
+        forecastDate > currentDate &&
+        Object.keys(filteredForecast).length < 6
+      ) {
         const date = forecastDate.getDate();
         if (!filteredForecast[date]) {
           filteredForecast[date] = forecast;
@@ -65,13 +69,11 @@ function App() {
     if (location) {
       fetchData();
     }
-  }, [location]); 
+  }, [location]);
 
   return (
     <div className="App">
-      <Search 
-      fetchData={fetchData}
-      />
+      <Search fetchData={fetchData} />
       <div className="container">
         <CurrentWeather />
         <Forecast />
