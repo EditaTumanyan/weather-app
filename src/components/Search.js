@@ -1,19 +1,27 @@
-import React from "react";
+import React from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setLocation } from '../redux/reducers/locationReducer';
 
-function Search({ location, setLocation, fetchData }) {
-  const searchLocation = (event) => {
+function Search({ fetchData }) {
+  const location = useSelector(state => state.location); 
+  const dispatch = useDispatch();
+
+  const handleKeyPress = (event) => {
     if (event.key === "Enter") {
       fetchData(location);
-      setLocation("");
     }
+  };
+
+  const handleChange = (event) => {
+    dispatch(setLocation(event.target.value)); 
   };
 
   return (
     <div className="search">
       <input
         value={location}
-        onChange={(event) => setLocation(event.target.value)}
-        onKeyPress={searchLocation}
+        onChange={handleChange}
+        onKeyPress={handleKeyPress}
         placeholder="Enter Location"
         type="text"
       />

@@ -1,21 +1,21 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import { selectWeatherData } from "../redux/selectors";
 
-function CurrentWeather({ data }) {
+function CurrentWeather() {
+  const data = useSelector(selectWeatherData);
+
   return (
     <div className="top">
       <div className="location">
         <p className="city">{data.name}</p>
         {data.sys && (
           <p>
-            Sunrise:{" "}
-            {new Date(data.sys.sunrise * 1000).toLocaleTimeString()}
+            Sunrise: {new Date(data.sys.sunrise * 1000).toLocaleTimeString()}
           </p>
         )}
         {data.sys && (
-          <p>
-            Sunset:{" "}
-            {new Date(data.sys.sunset * 1000).toLocaleTimeString()}
-          </p>
+          <p>Sunset: {new Date(data.sys.sunset * 1000).toLocaleTimeString()}</p>
         )}
       </div>
       <div className="temp">

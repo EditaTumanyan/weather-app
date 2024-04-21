@@ -1,6 +1,10 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import { selectWeatherData } from "../redux/selectors";
 
-function WeatherDetails({ data }) {
+function WeatherDetails() {
+  const data = useSelector(selectWeatherData);
+
   return (
     <div className="bottom">
       <div className="feels">

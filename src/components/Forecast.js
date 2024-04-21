@@ -1,6 +1,8 @@
-import React from "react";
+import { useSelector } from "react-redux";
+import { selectForecastData } from "../redux/selectors";
 
-function Forecast({ forecastData }) {
+function Forecast() {
+  const forecastData = useSelector(selectForecastData);
   return (
     <div className="forecast">
       {forecastData.map((forecast, index) => (
